@@ -1,3 +1,6 @@
+dk/
+dongle/
+build/
 .vscode
 boards
 child_image

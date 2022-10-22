@@ -93,7 +93,7 @@ int fetch_max30102(uint32_t * samplebuffer, int samplesToTake)
 }
 
 int max30102data(ppg_item_t * ppg_items, int samplesToTake) {
-	int buffersize = samplesToTake * 2;
+	int buffersize = samplesToTake * led_channels;
 	uint32_t buffer[buffersize]; //two led colors
 	if(fetch_max30102(buffer, samplesToTake)){
 		return 1;
@@ -103,7 +103,9 @@ int max30102data(ppg_item_t * ppg_items, int samplesToTake) {
 	{				
 		ppg_items[pic].ir = buffer[i];
 #if(led_channels > 1)
-		ppg_items[pic].red = buffer[i+1];		
+		ppg_items[pic].red = buffer[i+1];	
+#else
+		ppg_items[pic].red = 0;	
 #endif
 		pic++;
 	}
@@ -130,10 +132,9 @@ int max30102_init()
 	uint8_t part_id;
 	uint8_t mode_cfg;
 
-	/* Get the I2C device */
-	//i2c = device_get_binding(max30102cfg.i2c_label);
+	/* Get the I2C device */	
 	i2c = DEVICE_DT_GET(DT_NODELABEL(i2c0));
-	__ASSERT(device_is_ready(i2c0), "max30102 device not ready");
+	__ASSERT(device_is_ready(i2c), "max30102 device not ready");
 	
 	
 
@@ -180,7 +181,7 @@ int max30102_init()
 			//DIE_TEMP_RDY_EN = false
 			{0x03, 0b00000000},
 			//FIFO config - average, yes rollover, fifo almost full @ 4 left	
-			{0x08, 0b01011111},
+			{0x08, 0b11111111},
 			// mode configuration
 			{0x09, 0b00000010},
 			//Sample Rate Control
